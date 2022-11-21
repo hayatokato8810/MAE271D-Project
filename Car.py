@@ -102,7 +102,7 @@ def animate(t):
 	chassis.set_data(car.chassis[:,0], car.chassis[:,1])
 	return particle,path,direction,chassis
 
-car = Car(0,0,0,0.1)
+car = Car(0,0,0,0)
 
 fig = plt.figure()
 ax = plt.subplot()
@@ -121,7 +121,7 @@ plt.tight_layout()
 
 anim = animation.FuncAnimation(fig, animate,
 	#frames = 10,
-	interval = 20,
+	interval = 10,
 	blit = True)
 
 plt.show()
