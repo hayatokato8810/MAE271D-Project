@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-class Car():
+__author__ = "Hayato Kato"
+
+class Car(object):
 	'''
 	y:   lateral displacement
 	v:   lateral velocity
@@ -17,7 +19,7 @@ class Car():
 		self.Lf = 2
 		self.Lr = 2
 		self.Iz = 10
-		self.u0 = 3
+		self.u0 = 0.1
 
 		self.y = y
 		self.v = v
@@ -28,9 +30,11 @@ class Car():
 
 		self.cx = 0
 		self.cy = 0
+		self.dx = 0
+		self.dy = 0
 
-		carWidth = 30
-		carLength = 60
+		carWidth = 0.5
+		carLength = 1
 
 		self.chassis = np.zeros((5,2))
 		self.chassisRef = np.zeros((5,2))
@@ -69,12 +73,12 @@ class Car():
 
 		U[0,0] = delta
 
-		result = dt*np.matmul(A,X)+np.matmul(B,U)
+		result = np.matmul(A,X)+np.matmul(B,U)
 
 		self.y += result[0,0]
-		self.v += result[1,0]
+		self.v += dt*result[1,0]
 		self.psi += result[2,0]
-		self.r += result[3,0]
+		self.r += dt*result[3,0]
 
 		X[0,0] = self.y
 		X[1,0] = self.v
@@ -86,46 +90,66 @@ class Car():
 		positionVector = np.array([self.cx,self.cy]).T + movementVector
 		self.cx = positionVector[0]
 		self.cy = positionVector[1]
+		self.dx = 10*movementVector[0] + self.cx
+		self.dy = 10*movementVector[1] + self.cy
 
 		self.chassis = np.matmul(self.chassisRef,rotMatrix) + positionVector
 
 	def plot(self,ax):
-		ax.scatter(self.cx, self.cy,100,'k',zorder=1)
+		pos, = ax.plot(self.cx,self.cy,'ko')
+		chassis, = ax.plot(self.chassis[:,0], self.chassis[:,1],'r-')
+		direction, = ax.plot([self.cx,self.dx],[self.cy,self.dy],'b')
+		#print(pos._animated)
+		#pos.draw_artist()
+		return pos,chassis,direction
+
+		#ax.scatter(self.cx, self.cy,100,'k',zorder=1)
+
+	def pos(self):
+		return [self.cx,self.cy]
 
 def animate(t):
-	car.update(0.1) # Steering
-	xdata.append(car.cx)
-	ydata.append(car.cy)
-	particle.set_data(car.cx,car.cy)
-	path.set_data(xdata,ydata)
+	plt.cla()
+	car.update(0.1,0.001) # Steering
+	car.plot(ax)
+	#xdata.append(car.cx)
+	#ydata.append(car.cy)
+	#particle.set_data(car.cx,car.cy)
+	#path.set_data(xdata,ydata)
 	#direction.set_data([car.cx,car.cx+50*math.cos(car.psi)],[car.cy,car.cy+50*math.sin(car.psi)])
-	chassis.set_data(car.chassis[:,0], car.chassis[:,1])
-	return particle,path,direction,chassis
+	#chassis.set_data(car.chassis[:,0], car.chassis[:,1])
+	#return particle,path,direction,chassis
 
-car = Car(0,0,0,0)
+	ax.set_aspect('equal')
+	ax.grid()
 
-fig = plt.figure()
-ax = plt.subplot()
+	#return chassis, position
 
-xdata,ydata = [],[]
-particle, = ax.plot([], [],'ko')
-path, = ax.plot([],[],'b--',zorder=1)
-direction, = ax.plot([],[],'k-')
-chassis, = ax.plot([],[],'r-')
-ax.set_xlim([-250,250])
-ax.set_ylim([-250,250])
-ax.set_aspect('equal')
-ax.grid()
-plt.tight_layout()
+def main():
+	global car,ax,xdata,ydata,particle,path,direction,chassis
+
+	fig = plt.figure()
+	ax = plt.subplot()	
+
+	car = Car(0,0,0,0)
+
+	#xdata,ydata = [],[]
+	#particle, = ax.plot([], [],'ko')
+	#path, = ax.plot([],[],'b--',zorder=1)
+	#direction, = ax.plot([],[],'k-')
+	#chassis, = ax.plot([],[],'r-')
+	#ax.set_xlim([-250,250])
+	#ax.set_ylim([-250,250])
+
+	anim = animation.FuncAnimation(fig, animate,
+		#frames = 10,
+		interval = 100)
+
+	plt.show()
 
 
-anim = animation.FuncAnimation(fig, animate,
-	#frames = 10,
-	interval = 10,
-	blit = True)
-
-plt.show()
-
+if __name__ == '__main__':
+	main()
 
 
 
