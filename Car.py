@@ -16,8 +16,8 @@ class Car(object):
 		self.m = 100
 		self.Cf = 5
 		self.Cr = 5
-		self.Lf = 2
-		self.Lr = 2
+		self.Lf = 0.2
+		self.Lr = 0.2
 		self.Iz = 10
 		self.u0 = 0.1
 
@@ -33,16 +33,16 @@ class Car(object):
 		self.dx = 0
 		self.dy = 0
 
-		carWidth = 0.5
+		carWidth = 0.1
 		carLength = 1
 
 		self.chassis = np.zeros((5,2))
 		self.chassisRef = np.zeros((5,2))
-		self.chassisRef[0,0] = -carLength/2
-		self.chassisRef[1,0] = -carLength/2
-		self.chassisRef[2,0] = carLength/2
-		self.chassisRef[3,0] = carLength/2
-		self.chassisRef[4,0] = -carLength/2
+		self.chassisRef[0,0] = -self.Lr/2
+		self.chassisRef[1,0] = -self.Lr/2
+		self.chassisRef[2,0] = self.Lf/2
+		self.chassisRef[3,0] = self.Lf/2
+		self.chassisRef[4,0] = -self.Lr/2
 		self.chassisRef[0,1] = -carWidth/2
 		self.chassisRef[1,1] = carWidth/2
 		self.chassisRef[2,1] = carWidth/2
@@ -90,18 +90,18 @@ class Car(object):
 		positionVector = np.array([self.cx,self.cy]).T + movementVector
 		self.cx = positionVector[0]
 		self.cy = positionVector[1]
-		self.dx = 10*movementVector[0] + self.cx
-		self.dy = 10*movementVector[1] + self.cy
+		self.dx = 2*movementVector[0] + self.cx
+		self.dy = 2*movementVector[1] + self.cy
 
 		self.chassis = np.matmul(self.chassisRef,rotMatrix) + positionVector
 
 	def plot(self,ax):
-		pos, = ax.plot(self.cx,self.cy,'ko')
+		#pos, = ax.plot(self.cx,self.cy,'ko')
 		chassis, = ax.plot(self.chassis[:,0], self.chassis[:,1],'r-')
 		direction, = ax.plot([self.cx,self.dx],[self.cy,self.dy],'b')
 		#print(pos._animated)
 		#pos.draw_artist()
-		return pos,chassis,direction
+		#return pos,chassis,direction
 
 		#ax.scatter(self.cx, self.cy,100,'k',zorder=1)
 
